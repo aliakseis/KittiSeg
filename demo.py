@@ -42,6 +42,7 @@ import scipy as scp
 import scipy.misc
 import tensorflow as tf
 
+import imageio
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -162,7 +163,7 @@ def main(_):
     logging.info("Starting inference using {} as input".format(input_image))
 
     # Load and resize input image
-    image = scp.misc.imread(input_image)
+    image = imageio.imread(input_image)
     if hypes['jitter']['reseize_image']:
         # Resize input only, if specified in hypes
         image_height = hypes['jitter']['image_height']
@@ -200,9 +201,9 @@ def main(_):
     rb_image_name = output_base_name.split('.')[0] + '_rb.png'
     green_image_name = output_base_name.split('.')[0] + '_green.png'
 
-    scp.misc.imsave(raw_image_name, output_image)
-    scp.misc.imsave(rb_image_name, rb_image)
-    scp.misc.imsave(green_image_name, green_image)
+    imageio.imwrite(raw_image_name, output_image)
+    imageio.imwrite(rb_image_name, rb_image)
+    imageio.imwrite(green_image_name, green_image)
 
     logging.info("")
     logging.info("Raw output image has been saved to: {}".format(

@@ -41,14 +41,32 @@ def dict_merge(dct, merge_dct):
 
 
 # configure logging
-if 'TV_IS_DEV' in os.environ and os.environ['TV_IS_DEV']:
-    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                        level=logging.INFO,
-                        stream=sys.stdout)
-else:
-    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
-                        level=logging.INFO,
-                        stream=sys.stdout)
+#if 'TV_IS_DEV' in os.environ and os.environ['TV_IS_DEV']:
+#    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+#                        level=logging.INFO,
+#                        stream=sys.stdout)
+#else:
+#    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+#                        level=logging.INFO,
+#                        stream=sys.stdout)
+
+
+
+# set up logging to file - see previous section for more details
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filename='log.txt',
+                    filemode='w')
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+# set a format which is simpler for console use
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+
 
 # https://github.com/tensorflow/tensorflow/issues/2034#issuecomment-220820070
 import numpy as np
@@ -87,7 +105,8 @@ else:
 
 
 def main(_):
-    utils.set_gpus_to_use()
+    os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    #utils.set_gpus_to_use()
 
     try:
         import tensorvision.train
@@ -123,6 +142,12 @@ def main(_):
     train.maybe_download_and_extract(hypes)
     logging.info("Initialize training folder")
     train.initialize_training_folder(hypes)
+
+    config = tf.ConfigProto()
+    config.gpu_options.allocator_type ='BFC'
+    config.gpu_options.per_process_gpu_memory_fraction = 0.90
+    config.gpu_options.allow_growth = True
+
     logging.info("Start training")
     train.do_training(hypes)
 
